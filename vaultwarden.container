@@ -1,0 +1,35 @@
+[Unit]
+Description=Vaultwarden password manager
+After=network-online.target
+Wants=network-online.target
+
+[Container]
+Image=docker.io/vaultwarden/server:latest
+AutoUpdate=registry
+
+# The image runs as root (uid 0) inside the container.
+# In rootless Podman the default user-namespace mapping makes root-in-container
+# equivalent to the service user on the host, so no UserNS=keep-id is needed.
+
+# Environment variables
+EnvironmentFile=%h/.config/containers/systemd/vaultwarden.env
+EnvironmentFile=%h/.config/containers/systemd/vaultwarden.override.env
+
+# Persistent data volume — /data holds the SQLite DB, attachments, sends, icon cache
+Volume=%h/data:/data:Z
+
+# Port mapping — bind to localhost only, reverse proxy handles TLS
+PublishPort=127.0.0.1:8080:8080
+
+# Health check
+HealthCmd=curl -f http://localhost:8080/alive || exit 1
+HealthInterval=30s
+HealthTimeout=10s
+HealthRetries=3
+
+[Service]
+Restart=always
+TimeoutStartSec=900
+
+[Install]
+WantedBy=default.target

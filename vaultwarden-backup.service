@@ -1,0 +1,9 @@
+[Unit]
+Description=Vaultwarden backup
+
+[Service]
+Type=oneshot
+# Step 1: Consistent SQLite snapshot of the vault database (safe for online backup)
+ExecStart=/usr/bin/sqlite3 %h/data/db.sqlite3 ".backup '/var/backups/vaultwarden/db.sqlite3'"
+# Step 2: Sync remaining data — attachments, sends, icon cache (excludes db.sqlite3, handled above)
+ExecStart=/usr/bin/rsync -a --delete --exclude=db.sqlite3 %h/data/ /var/backups/vaultwarden/data/
