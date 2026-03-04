@@ -62,7 +62,7 @@ sudo -u vaultwarden XDG_RUNTIME_DIR=/run/user/$(id -u vaultwarden) systemctl --u
 |---|---|---|
 | `TZ` | `Europe/Berlin` | Container timezone |
 | `ROCKET_PORT` | `8080` | HTTP port inside the container |
-| `SIGNUPS_ALLOWED` | `false` | Disable public registration |
+| `SIGNUPS_ALLOWED` | `true` | Allow new user registrations |
 
 `vaultwarden.override.env` (created from template) must set:
 
@@ -132,12 +132,14 @@ This pulls both the vault database snapshot (`db.sqlite3`) and the remaining dat
 - Port `8080` is bound to `127.0.0.1` only — Caddy handles TLS termination.
 - All persistent data is stored at `~vaultwarden/data/` on the host.
 - `DOMAIN` must be set to the HTTPS URL before first start.
-- `ADMIN_TOKEN` should be an Argon2 hash for security. Generate one with:
+- `ADMIN_TOKEN` should be an Argon2 hash for security. Install the `argon2` package first if it is
+  not already present (e.g. `sudo dnf install argon2` on Fedora, `sudo apt-get install argon2` on Debian/Ubuntu),
+  then generate (password is prompted interactively — not stored in shell history):
   ```sh
-  echo -n "yourpassword" | argon2 "$(openssl rand -base64 32)" -id -k 65540 -t 3 -p 4 | sed 's#\$#$$#g'
+  printf 'Password: '; read -rs PW && printf '%s' "$PW" | argon2 "$(openssl rand -base64 32)" -id -k 65540 -t 3 -p 4 | sed 's#\$#$$#g'
   ```
   The admin panel is accessible at `/admin`. Leave `ADMIN_TOKEN` empty to disable it entirely.
-- `SIGNUPS_ALLOWED=false` disables public registration by default. Invite users from the admin panel instead.
+- `SIGNUPS_ALLOWED=true` allows public registration by default. Set `SIGNUPS_ALLOWED=false` in `vaultwarden.override.env` to restrict registration after the initial setup.
 - `AutoUpdate=registry` is enabled; activate the timer once to get automatic image updates:
   ```sh
   sudo -u vaultwarden XDG_RUNTIME_DIR=/run/user/$(id -u vaultwarden) systemctl --user enable --now podman-auto-update.timer
