@@ -107,7 +107,7 @@ which sqlite3 || sudo apt-get install -y sqlite3
 # 2. Create backup staging directories (owned by vaultwarden, readable by backup-readers group)
 sudo mkdir -p /var/backups/vaultwarden/data
 sudo chown -R vaultwarden:backup-readers /var/backups/vaultwarden
-sudo chmod -R 750 /var/backups/vaultwarden
+sudo chmod 2750 /var/backups/vaultwarden
 
 # 3. Symlink the backup service and timer from the repo
 sudo -u vaultwarden mkdir -p ~vaultwarden/.config/systemd/user
