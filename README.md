@@ -108,6 +108,7 @@ which sqlite3 || sudo apt-get install -y sqlite3
 sudo mkdir -p /var/backups/vaultwarden/data
 sudo chown -R vaultwarden:backup-readers /var/backups/vaultwarden
 sudo chmod 2750 /var/backups/vaultwarden
+sudo setfacl -R -m g:backup-readers:rX,d:g:backup-readers:rX /var/backups/vaultwarden
 
 # 3. Symlink the backup service and timer from the repo
 sudo -u vaultwarden mkdir -p ~vaultwarden/.config/systemd/user
